@@ -1,0 +1,14 @@
+# (data.yaml にこの内容を貼り付けて上書き保存)
+
+# 'clover1' フォルダへの絶対パス（フルパス）を指定するのが最も安全です
+path: C:\Users\lenob\.vscode\program\AI figure learn\yolo\clover1
+
+# pathからの相対パスで画像フォルダを指定します
+# CVATで 'Test' しか作らなかったため、'train' と 'val' にも同じ場所を指定します。
+train: images
+val: images
+test: images
+
+# クラス名
+names:
+  0: clover
