@@ -1,0 +1,11 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Model files
+*.pt
+
+# Output folders
+check_result/
+roi_check_output/
