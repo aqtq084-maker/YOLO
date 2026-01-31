@@ -6,7 +6,7 @@ from ultralytics import YOLO
 # ==========================================
 # 前回の学習結果が入っているフォルダを確認して、パスを書き換えてください。
 # 例: 'E:\program\AI figure learn\runs\detect\train8\weights\best.pt'
-model_path = r'E:\program\AI figure learn\runs\detect\clover_retry_v2\weights\best.pt'
+model_path = r'E:\program\AI figure learn\yolo\runs\detect\clover_retry_v32\weights\best.pt'
 
 model = YOLO(model_path)
 
@@ -14,10 +14,10 @@ model = YOLO(model_path)
 # 2. 設定（フォルダやROI）
 # ==========================================
 # 自動ラベリングしたい新しい画像のフォルダ
-input_dir = r"E:\program\AI figure learn\yolo\dataset\HLimages" 
+input_dir = r"E:\program\AI figure learn\yolo\dataset\HL2images" 
 
 # ラベル(.txt)の保存先
-output_dir = r"E:\program\AI figure learn\yolo\dataset\HLlabels"
+output_dir = r"E:\program\AI figure learn\yolo\dataset\HL2labels"
 
 # ★★★ ROI（探索範囲）の設定 ★★★
 # ここで指定した四角形の中にあるクローバーだけをラベリングします。

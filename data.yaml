@@ -1,4 +1,4 @@
-path: E:\program\AI figure learn\yolo\dataset_2
+path: E:\program\AI figure learn\yolo\dataset
 train: images/train
 val: images/val
 nc: 1

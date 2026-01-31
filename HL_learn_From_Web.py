@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # 1. ゼロからではなく、前回の「賢いモデル(v3)」をベースにさらに鍛える
-model = YOLO(r'E:\program\AI figure learn\runs\detect\clover_retry_v22\weights\best.pt')
+model = YOLO(r'E:\program\AI figure learn\yolo\runs\detect\clover_retry_v32\weights\best.pt')
 
 # 2. 追加データを含めて再学習
 model.train(
@@ -16,5 +16,5 @@ model.train(
     fliplr=0.5, 
     mosaic=1.0, 
     
-    name='clover_retry_v3'  # ★今回は「v4」として保存
+    name='clover_retry_v4'  # ★今回は「v4」として保存
 )
