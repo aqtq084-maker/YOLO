@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Branch Rules（ブランチ運用ルール）
 
 ### 基本方針
@@ -29,3 +30,6 @@
 ```bash
 git switch main
 git pull origin main
+=======
+# YOLO
+>>>>>>> origin/main

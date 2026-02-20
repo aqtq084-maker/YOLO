@@ -3,8 +3,13 @@ import os
 
 # --- 設定 ---
 # 1. 画像とラベルがあるフォルダ
+<<<<<<< HEAD
 img_dir = r"E:\program\AI figure learn\yolo\clover_images"
 lbl_dir = r"E:\program\AI figure learn\yolo\clover_labels"
+=======
+img_dir = r"E:\program\AI figure learn\yolo\dataset\images\train"
+lbl_dir = r"E:\program\AI figure learn\yolo\dataset\labels\train"
+>>>>>>> origin/main
 
 # 2. 確認用画像を保存するフォルダ（自動作成されます）
 output_dir = r"E:\program\AI figure learn\yolo\check_result"

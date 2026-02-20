@@ -1,6 +1,10 @@
 # Python
 venv/
 __pycache__/
+<<<<<<< HEAD
+=======
+dataset/
+>>>>>>> origin/main
 *.pyc
 
 # Model files

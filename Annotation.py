@@ -6,10 +6,10 @@ from PIL import Image
 model = YOLO('yolov8n.pt')
 
 # 2. 自動ラベリングしたい画像が入ったフォルダ
-input_dir = r"E:\program\AI figure learn\yolo\clover_images"
+input_dir = r"E:\program\AI figure learn\yolo\dataset\images\train"
 
 # 3. .txt ラベルの保存先フォルダ
-output_dir = r"E:\program\AI figure learn\yolo\clover_labels"
+output_dir = r"E:\program\AI figure learn\yolo\dataset\labels\train"
 
 # 4. ★★★ここに物体があればラベリングしたい座標（ROI）を複数指定★★★
 # 形式: [x1, y1, x2, y2] (左上のX座標, 左上のY座標, 右下のX座標, 右下のY座標)
@@ -17,8 +17,9 @@ output_dir = r"E:\program\AI figure learn\yolo\clover_labels"
 # 例えば (100, 150) から (500, 400) までの領域と、
 # (600, 200) から (800, 300) までの領域を指定する場合：
 rois = [
-    [100, 150, 500, 400],  # ROI 1
-    [600, 200, 800, 300]   # ROI 2
+    [50, 50, 300, 300],  # ROI 1
+    [200, 200, 500, 500],  
+    [10, 10, 800, 800]# ROI 2
     # ここに必要なだけROI（矩形）を追加できます
 ]
 
@@ -56,12 +57,16 @@ for filename in os.listdir(input_dir):
                         break # 1つでもROIに入っていればOK
 
                 # 8. もしROI内に入っていたら、その物体だけをファイルに書き込む
+                # 8. もしROI内に入っていたら、その物体だけをファイルに書き込む
                 if is_in_any_roi:
                     xywhn = box.xywhn[0]
-                    class_id = int(box.cls[0])
+                    
+                    # --- 変更点：モデルの判定に関わらず、特定のIDに固定する ---
+                    my_class_id = 0  # ここに設定したいクラスIDを入れる
+                    # ---------------------------------------------------
 
                     # <class_id> <center_x> <center_y> <width> <height>
-                    f.write(f"{class_id} {xywhn[0]} {xywhn[1]} {xywhn[2]} {xywhn[3]}\n")
+                    f.write(f"{my_class_id} {xywhn[0]} {xywhn[1]} {xywhn[2]} {xywhn[3]}\n")
 
         print(f"処理完了: {filename} -> {label_filename} (ROIフィルター適用済み)")
 print("すべての画像の自動ラベリングが完了しました。")
