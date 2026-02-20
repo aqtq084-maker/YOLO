@@ -1,5 +1,6 @@
-path: E:\program\AI figure learn\yolo\dataset_2
-train: images/train
-val: images/val
+path: C:/Users/kiso1/OneDrive - 岡山大学/協生農法　技術班/YOLO
+train: dataset/images/train
+val: dataset/images/val
+
 nc: 1
-names: ['clover']
+names: ['komatsuna']  # 小松菜をやる時はここを 'komatsuna' に変える
