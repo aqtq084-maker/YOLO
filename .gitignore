@@ -1,7 +1,11 @@
 # Python
 venv/
 __pycache__/
+dataset/
 *.pyc
+clover_images/
+clover_labels/
+dataset_2/
 
 # Model files
 *.pt

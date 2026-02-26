@@ -1,0 +1,5 @@
+path: E:\program\AI figure learn\yolo\dataset_daikon
+train: images/train
+val: images/val
+nc: 1
+names: ['daikon']
