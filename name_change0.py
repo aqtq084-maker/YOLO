@@ -5,13 +5,13 @@ import re
 # 1. ここを変更してください
 # ==========================================
 # 画像が入っているフォルダのパス
-folder_path = r"C:\Users\kiso1\OneDrive\デスクトップ\小松菜判別\小松菜追加10枚"
+folder_path = r"C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\photo\小松菜train用10枚②"
 
 # つけたい名前（接頭辞）
-prefix = "komatsuna"
+prefix = "train_komatsuna"
 
 # ★何番からスタートするかを指定します
-start_num = 11  
+start_num = 31  
 
 # 処理対象とする拡張子のリスト（これらを見つけたら処理します）
 valid_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff']
@@ -31,7 +31,7 @@ all_files.sort(key=natural_keys) # ここがポイント！
 target_files = []
 for f in all_files:
     name, ext = os.path.splitext(f)
-    if ext.lower() in valid_extensions and not f.startswith(f"{prefix}_"):
+    if ext.lower() in valid_extensions: # startswithのチェックを消すと無理やり改名！and not f.startswith(f"{prefix}_"):
         target_files.append(f)
 
 # --- ステップA: 一時的な名前に変える（衝突回避） ---

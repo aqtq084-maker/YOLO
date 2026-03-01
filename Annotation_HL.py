@@ -6,7 +6,7 @@ from ultralytics import YOLO
 # ==========================================
 # 前回の学習結果が入っているフォルダを確認して、パスを書き換えてください。
 # 例: 'E:\program\AI figure learn\runs\detect\train8\weights\best.pt'
-model_path = r"C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\runs\detect\komatsuna_v1_model\weights\best.pt"
+model_path = r"C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\runs\detect\komatsuna_second_train\weights\best.pt"
 
 model = YOLO(model_path)
 
@@ -14,17 +14,15 @@ model = YOLO(model_path)
 # 2. 設定（フォルダやROI）
 # ==========================================
 # 自動ラベリングしたい新しい画像のフォルダ
-input_dir = r"C:\Users\kiso1\OneDrive\デスクトップ\小松菜判別\小松菜追加10枚"
+input_dir = r"C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\photo\小松菜train用10枚①"
 
 # ラベル(.txt)の保存先
-output_dir = r"C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\dataset\new_label"
+output_dir = r"C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\output_labels_komatsuna"
 # ★★★ ROI（探索範囲）の設定 ★★★
 # ここで指定した四角形の中にあるクローバーだけをラベリングします。
 # もし「画像全体」から探してほしい場合は、このリストを空にするか、ロジックを外します。
-rois = [
-    [0, 0, 640, 640],  # 例: 画像全体を探索範囲にする場合（必要に応じて書き換えてください）
+rois = [0, 0, 9999, 9999],  # 例: 画像全体を探索範囲にする場合（必要に応じて書き換えてください）
     # [50, 50, 300, 300], 
-]
 
 # フォルダ作成
 os.makedirs(output_dir, exist_ok=True)
