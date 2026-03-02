@@ -4,7 +4,7 @@ import io
 from detector import KomatsunaDetector  # 作成したファイルを読み込む
 
 # --- 1. 初期設定 ---
-MODEL_PATH = r'C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\runs\detect\komatsuna_third_train\weights\best.pt'
+MODEL_PATH = r'C:\YOLO_New_Project\runs\detect\komatsuna_third_train\weights\best.pt'
 
 # 判定エンジンの起動
 if 'detector' not in st.session_state:
