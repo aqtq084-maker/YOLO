@@ -4,6 +4,7 @@ import os
 # 1. ここを変更してください
 # ==========================================
 # 画像が入っているフォルダのパス
+<<<<<<< HEAD
 folder_path = r"/home/momoshita/協生農法/YOLO/dataset_komatsuna/images/val"
 
 # つけたい名前（接頭辞）
@@ -11,6 +12,15 @@ prefix = "komatsuna"
 
 # ★何番からスタートするかを指定します
 start_num = 41  
+=======
+folder_path = r"E:\program\AI figure learn\yolo\dataset_radish\images\val"
+
+# つけたい名前（接頭辞）
+prefix = "radish"
+
+# ★何番からスタートするかを指定します
+start_num = 49  
+>>>>>>> 74475ef8d991ae563fc8f41f2a53e852be7cc6d9
 
 # ==========================================
 # 2. 実行処理
