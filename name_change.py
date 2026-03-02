@@ -4,13 +4,13 @@ import os
 # 1. ここを変更してください
 # ==========================================
 # 画像が入っているフォルダのパス
-folder_path = r"E:\桃下村塾\開発\写真\大根"
+folder_path = r"/home/momoshita/協生農法/YOLO/dataset_komatsuna/images/val"
 
 # つけたい名前（接頭辞）
-prefix = "daikon"
+prefix = "komatsuna"
 
 # ★何番からスタートするかを指定します
-start_num = 30  
+start_num = 41  
 
 # ==========================================
 # 2. 実行処理

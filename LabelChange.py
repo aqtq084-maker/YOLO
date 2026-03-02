@@ -5,10 +5,10 @@ import glob
 # 1. ここを変更してください
 # ==========================================
 # ★書き換えたい野菜の「labels」フォルダのパス
-label_dir = r"C:\Users\あなたのPC\Desktop\komatsuna_dataset\labels"
+label_dir = r"/home/momoshita/協生農法/YOLO/dataset_radish/labels/val"
 
 # ★変更後のクラスID（小松菜なら '1'、3つ目の野菜なら '2'）
-new_class_id = '1'
+new_class_id = '2'
 
 # ==========================================
 # 2. 実行処理（ここは書き換え不要）
