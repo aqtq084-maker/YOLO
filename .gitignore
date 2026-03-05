@@ -8,7 +8,6 @@ clover_labels/
 dataset_2/
 
 # Model files
-*.pt
 
 # Output folders
 check_result/
