@@ -7,7 +7,6 @@ clover_images/
 clover_labels/
 
 # Model files
-*.pt
 
 # Output folders
 check_result/
