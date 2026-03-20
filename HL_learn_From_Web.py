@@ -16,5 +16,5 @@ model.train(
     fliplr=0.5, 
     mosaic=1.0, 
     
-    name='clover_retry_v4'  # ★今回は「v4」として保存
+    name='daikon_retry_v4'  # ★今回は「v4」として保存
 )
