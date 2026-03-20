@@ -1,10 +1,12 @@
 import streamlit as st
 from PIL import Image
 import io
+# detectorからクラスを読み込む（detector内部でvisualizerを使う）
 from detector import KomatsunaDetector  # 作成したファイルを読み込む
 
 # --- 1. 初期設定 ---
-MODEL_PATH = r'C:\YOLO_New_Project\runs\detect\komatsuna_third_train\weights\best.pt'
+# ここはあなたの環境に合わせてください
+MODEL_PATH = r'C:\YOLO_New_Project\3vegetables\best.pt'
 
 # 判定エンジンの起動
 if 'detector' not in st.session_state:
@@ -18,6 +20,23 @@ st.sidebar.header("メニュー")
 mode = st.sidebar.selectbox("入力方法を選択", ["アルバムから選ぶ", "カメラで撮影"])
 conf_threshold = st.sidebar.slider("確信度のしきい値", 0.0, 1.0, 0.4, 0.05)
 
+# 🌟 小松菜の色（緑色）の判定調整を追加
+st.sidebar.subheader("小松菜の色の判定調整")
+st.sidebar.caption("ほかの植物が混ざる場合は設定を調整してください。")
+
+with st.sidebar.expander("詳細な色の設定 (HSV)", expanded=True):
+    h_min = st.slider("色相(H)の下限", 0, 180, 30) # 黄緑〜
+    h_max = st.slider("色相(H)の上限", 0, 180, 85) # 〜深緑
+    s_min = st.slider("飽和度(S)の下限", 0, 255, 30) # くすんだ緑も含む
+    v_min = st.slider("明度(V)の下限", 0, 255, 40) # 影になった葉を含む 👈 ここ大事
+    
+    # 閾値を辞書にまとめる
+    hsv_thresholds = {
+        'h_min': h_min, 'h_max': h_max,
+        's_min': s_min, 's_max': 255, # 上限はMAXで固定
+        'v_min': v_min, 'v_max': 255  # 上限はMAXで固定
+    }
+    
 # 入力ソースの決定
 input_file = None
 if mode == "アルバムから選ぶ":
@@ -30,7 +49,10 @@ if input_file is not None:
     image = Image.open(input_file)
     
     # 分離したdetectorを使って判定
-    res_img, count, df_data = st.session_state.detector.process_frame(image, conf_threshold)
+    # 🌟 引数に hsv_thresholds を追加して呼び出す
+    res_img, count, df_data = st.session_state.detector.process_frame(
+        image, conf_threshold, hsv_thresholds
+    )
 
     # レイアウト表示
     col1, col2 = st.columns(2)
@@ -39,7 +61,8 @@ if input_file is not None:
         st.image(image, use_container_width=True)
     with col2:
         st.subheader("🔍 AI判定結果")
-        st.image(res_img, caption=f"検知数: {count} 株", use_container_width=True)
+        # res_img はOpenCV形式(numpy)なので、st.imageでそのまま表示可能
+        st.image(res_img, caption=f"検知数: {count} 株（領域表示）", use_container_width=True, channels="RGB")
 
     # 診断レポート
     st.divider()
