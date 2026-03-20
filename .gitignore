@@ -1,6 +1,6 @@
 # Python
 venv/
-venv_gpu
+venv_gpu/
 __pycache__/
 dataset/
 *.pyc
