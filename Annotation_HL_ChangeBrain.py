@@ -9,7 +9,7 @@ model.train(
     data='E:/program/AI figure learn/yolo/data.yaml', 
     epochs=100,      # 100回学習
     imgsz=640, 
-    device='cpu',
+    device='0',
     
     # 水増し設定（30枚を数百枚分の価値にする）
     degrees=20.0,    # 回転
