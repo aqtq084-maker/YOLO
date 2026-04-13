@@ -4,23 +4,13 @@ import os
 # 1. ここを変更してください
 # ==========================================
 # 画像が入っているフォルダのパス
-<<<<<<< HEAD
-folder_path = r"/home/momoshita/協生農法/YOLO/dataset_komatsuna/images/val"
+folder_path = r"E:\program\AI figure learn\yolo\dataset_komatsuna\小松菜_写真とtxtデータ\小松菜アノテーション51-95"
 
 # つけたい名前（接頭辞）
-prefix = "komatsuna"
+prefix = "komatsuna_train"
 
 # ★何番からスタートするかを指定します
-start_num = 41  
-=======
-folder_path = r"E:\program\AI figure learn\yolo\dataset_radish\images\val"
-
-# つけたい名前（接頭辞）
-prefix = "radish"
-
-# ★何番からスタートするかを指定します
-start_num = 49  
->>>>>>> 74475ef8d991ae563fc8f41f2a53e852be7cc6d9
+start_num = 51
 
 # ==========================================
 # 2. 実行処理
@@ -31,14 +21,14 @@ files = sorted(os.listdir(folder_path))
 count = start_num
 for file_name in files:
     # ★すでに「daikon_」から始まるファイルはスキップ（無視）する
-    if file_name.startswith(f"{prefix}_"):
-        continue
+    #if file_name.startswith(f"{prefix}_"):
+        #continue
         
-    old_file_path = os.path.join(folder_path, file_name)
+    #old_file_path = os.path.join(folder_path, file_name)
     name, ext = os.path.splitext(file_name)
     
     # 画像ファイル以外はスキップ
-    if ext.lower() not in ['.jpg', '.jpeg', '.png']:
+    if ext.lower() not in ['.jpg', '.jpeg', '.png','.webp']:
         continue
         
     # 新しいファイル名を作成（例：daikon_021.jpg）
