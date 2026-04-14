@@ -1,4 +1,4 @@
-path: /home/momoshita/協生農法/YOLO/dataset_all
+path: /home/momoshita/協生農法/YOLO/dataset_all2
 train: images/train
 val: images/val
 nc: 3

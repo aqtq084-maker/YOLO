@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # 1. まっさらな状態からスタート
-model = YOLO('yolov8n.pt')
+model = YOLO('yolov8m.pt')
 
 # 2. 修正したデータでガッツリ学習
 # data.yaml のパスは環境に合わせてください
@@ -17,5 +17,5 @@ model.train(
     fliplr=0.5,      # 左右反転
     mosaic=1.0,      # 画像合成
     
-    name='all_1'  # ★フォルダ名を分かりやすく固定
+    name='all_5'  # ★フォルダ名を分かりやすく固定
 )
