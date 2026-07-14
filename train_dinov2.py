@@ -5,25 +5,23 @@ from torch.utils.data import DataLoader
 from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score
 import joblib
+from transformers import AutoModel # ★ここが新しくなりました！
 
 # ===== 1. 設定 =====
-# 画像が入っている大元のフォルダ（komatsunaなどのフォルダが入っている階層）
-DATASET_DIR = "dataset_dinov2/train"  # ← 作成した新しいフォルダ名に合わせる
-MODEL_SAVE_PATH = "dinov2_komatsuna_model.pkl" # 保存するAIモデルの名前
-
+DATASET_DIR = "dataset_dinov2/train" 
+MODEL_SAVE_PATH = "dinov2_synecoculture_model.pkl"  # 協生農法（Synecoculture）の汎用モデルという名前に変更！
 # GPUが使えるPCなら自動でGPUを使用、なければCPUを使用
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"使用デバイス: {device}")
 
-# ===== 2. DINOv2モデルの読み込み =====
+# ===== 2. DINOv2モデルの読み込み (Transformers版に変更) =====
 print("DINOv2モデルをダウンロード・読み込み中...")
-# 'vits14'は軽くて高速なバージョンのDINOv2です
-dinov2 = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')
+# Metaの公式GitHubではなく、安定したHugging Faceからモデルを取得します
+dinov2 = AutoModel.from_pretrained('facebook/dinov2-small')
 dinov2.to(device)
-dinov2.eval() # 学習モードではなく、特徴を「抽出」するだけのモードにする
+dinov2.eval() 
 
 # ===== 3. 画像の前処理 =====
-# DINOv2が一番見やすいサイズ（224x224）に自動で揃える設定
 transform = T.Compose([
     T.Resize(256, interpolation=T.InterpolationMode.BICUBIC),
     T.CenterCrop(224),
@@ -40,13 +38,18 @@ print(f"学習するクラス（種類）: {dataset.classes}")
 def extract_features(loader):
     features_list = []
     labels_list = []
-    with torch.no_grad(): # 重い計算をスキップ
+    with torch.no_grad(): 
         for images, labels in loader:
             images = images.to(device)
-            # DINOv2の「眼」を通して、画像をただの数値の羅列（特徴量）に変換！
-            features = dinov2(images)
+            
+            # DINOv2に画像を入力して特徴を取り出す
+            outputs = dinov2(pixel_values=images)
+            # 画像全体の情報が詰まった「CLSトークン」という部分だけを抽出
+            features = outputs.last_hidden_state[:, 0, :]
+            
             features_list.append(features.cpu())
             labels_list.append(labels)
+            
     return torch.cat(features_list), torch.cat(labels_list)
 
 print(f"画像から特徴を抽出中... (合計: {len(dataset)}枚。少し時間がかかります)")
@@ -54,7 +57,6 @@ X_train, y_train = extract_features(dataloader)
 
 # ===== 6. 抽出した特徴を使って、分類器（SVM）を学習 =====
 print("分類器（AIの脳みそ）を学習中...")
-# DINOv2の抽出能力が高すぎるため、単純な機械学習アルゴリズム（SVM）で十分最強になります
 classifier = LinearSVC(C=1.0, max_iter=10000)
 classifier.fit(X_train.numpy(), y_train.numpy())
 
@@ -64,6 +66,5 @@ acc = accuracy_score(y_train.numpy(), preds)
 print(f"✅ 学習完了！ 訓練データの正解率: {acc * 100:.2f}%")
 
 # ===== 7. 完成したモデルを保存 =====
-# モデル本体と、どのラベルが小松菜かという名前辞書を一緒に保存
 joblib.dump({'model': classifier, 'classes': dataset.classes}, MODEL_SAVE_PATH)
 print(f"AIモデルを '{MODEL_SAVE_PATH}' に保存しました！")
