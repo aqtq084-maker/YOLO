@@ -4,7 +4,7 @@ from ultralytics import YOLO
 from visualizer import draw_semantic_mask
 
 # --- 設定 ---
-MODEL_PATH = r'C:\YOLO_New_Project\runs\detect\komatsuna_third_train\weights\best.pt'
+MODEL_PATH = r'C:\YOLO_New_Project 今の最新0320\best.pt'
 CONF_THRESHOLD = 0.5
 
 # 色の設定（app.pyのスライダーで決めたいい感じの値をここに入れてください）

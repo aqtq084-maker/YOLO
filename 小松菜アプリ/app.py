@@ -6,7 +6,7 @@ from detector import KomatsunaDetector  # 作成したファイルを読み込�
 
 # --- 1. 初期設定 ---
 # ここはあなたの環境に合わせてください
-MODEL_PATH = r'C:\YOLO_New_Project\3vegetables\best.pt'
+MODEL_PATH = r'C:\YOLO_New_Project 今の最新0320\best.pt'
 
 # 判定エンジンの起動
 if 'detector' not in st.session_state:

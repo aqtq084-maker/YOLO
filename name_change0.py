@@ -5,16 +5,16 @@ import re
 # 1. ここを変更してください
 # ==========================================
 # 画像が入っているフォルダのパス
-folder_path = r"C:\Users\kiso1\OneDrive - 岡山大学\協生農法　技術班\YOLO\photo\小松菜train用10枚②"
+folder_path = r"C:\YOLO_New_Project 今の最新0320\野菜写真100\九条ネギ"
 
 # つけたい名前（接頭辞）
-prefix = "train_komatsuna"
+prefix = "train_kujyonegi" # 例: "train_corn" -> train_corn_001.jpg, train_corn_002.jpg, ...
 
 # ★何番からスタートするかを指定します
-start_num = 31  
+start_num = 1
 
 # 処理対象とする拡張子のリスト（これらを見つけたら処理します）
-valid_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff']
+valid_extensions = ['.txt', '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff']
 
 # --- 数字を正しく扱うためのソート用関数 ---
 def natural_keys(text):
