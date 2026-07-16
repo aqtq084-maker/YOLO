@@ -1,5 +1,7 @@
 # Python
 venv/
+venv_gpu
+
 __pycache__/
 dataset/
 *.pyc
@@ -10,3 +12,5 @@ dataset/
 # Output folders
 check_result/
 roi_check_output/
+
+runs
