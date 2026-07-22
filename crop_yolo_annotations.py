@@ -1,46 +1,41 @@
 """
 YOLO形式アノテーションデータをもとに画像を矩形クロップするスクリプト
 
-想定するディレクトリ構成 (カテゴリごとにサブフォルダで分かれている場合):
+想定するディレクトリ構成 (カテゴリ分けなし、フラット構成):
 
-  images_DINOv2/
-    だいこん/
-      daikon_1.jpg
-      daikon_2.jpg
-      ...
-    かぼちゃ/
-      kabotya_1.jpg
-      ...
+  images/
+    1.jpg
+    2.jpg
+    3.jpg
+    ...
 
-  label_DINOv2/
-    だいこん/
-      daikon_1.txt   (YOLO形式: class_id x_center y_center width height ※0〜1正規化)
-      daikon_2.txt
-      ...
-    かぼちゃ/
-      kabotya_1.txt
-      ...
+  labels/
+    1.txt   (YOLO形式: class_id x_center y_center width height ※0〜1正規化)
+    2.txt
+    3.txt
+    ...
+
+  ※ images と labels で同じ連番(拡張子を除いたファイル名)のファイル同士をペアとして扱います。
+    (例: images/15.jpg と labels/15.txt が対応)
 
 出力:
   output/
-    だいこん/
-      daikon_1_000_cls0.jpg
-      ...
-    かぼちゃ/
-      kabotya_1_000_cls0.jpg
-      ...
-  ※ カテゴリフォルダ構成をそのまま保った状態でクロップ画像を保存します
+    1_000_cls0.jpg
+    2_000_cls0.jpg
+    ...
+  ファイル名: {元画像の連番}_{ボックス通番}_cls{class_id}.jpg
+  (1枚の画像に複数のバウンディングボックスがある場合はボックス通番で区別)
 
 使い方:
   python crop_yolo_annotations.py \
-      --images_dir images_DINOv2 \
-      --labels_dir label_DINOv2 \
+      --images_dir images \
+      --labels_dir labels \
       --output_dir output \
       --margin 0.0 \
       --classes 0 1 2      # 省略時は全クラス対象
 
   ※ images_dir / labels_dir / output_dir は省略可能で、その場合はこのスクリプトと
-    同じ階層にある images_DINOv2 / label_DINOv2 / output を自動的に使用します。
+    同じ階層にある images / labels / output を自動的に使用します。
 
 依存パッケージ:
   pip install opencv-python
@@ -87,10 +82,10 @@ def yolo_to_xyxy(x_center, y_center, width, height, img_w, img_h, margin=0.0):
     return x1, y1, x2, y2
 
 
-def find_image_path(category_image_dir: Path, stem: str):
+def find_image_path(images_dir: Path, stem: str):
     """拡張子違いを考慮して画像ファイルを探す"""
     for ext in (".jpg", ".jpeg", ".png", ".bmp", ".webp"):
-        candidate = category_image_dir / f"{stem}{ext}"
+        candidate = images_dir / f"{stem}{ext}"
         if candidate.exists():
             return candidate
     return None
@@ -109,79 +104,62 @@ def crop_dataset(images_dir: str, labels_dir: str, output_dir: str,
         print(f"[エラー] ラベルフォルダが見つかりません: {labels_dir}")
         return
 
-    # カテゴリフォルダ (だいこん、かぼちゃ、など) を走査
-    category_dirs = sorted(d for d in labels_dir.iterdir() if d.is_dir())
-    if not category_dirs:
-        print(f"[警告] {labels_dir} 直下にカテゴリフォルダが見つかりません")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    label_files = sorted(labels_dir.glob("*.txt"), key=lambda p: (len(p.stem), p.stem))
+    if not label_files:
+        print(f"[警告] {labels_dir} にラベルファイル(.txt)が見つかりません")
         return
 
     total_crops = 0
-    for category_label_dir in category_dirs:
-        category_name = category_label_dir.name
-        category_image_dir = images_dir / category_name
-
-        if not category_image_dir.exists():
-            print(f"[スキップ] 対応する画像フォルダが見つかりません: {category_image_dir}")
+    for label_path in label_files:
+        stem = label_path.stem
+        image_path = find_image_path(images_dir, stem)
+        if image_path is None:
+            print(f"[スキップ] 対応する画像が見つかりません: {stem}")
             continue
 
-        category_output_dir = output_dir / category_name
-        category_output_dir.mkdir(parents=True, exist_ok=True)
-
-        label_files = sorted(category_label_dir.glob("*.txt"))
-        if not label_files:
-            print(f"[警告] {category_label_dir} にラベルファイル(.txt)が見つかりません")
+        img = cv2.imread(str(image_path))
+        if img is None:
+            print(f"[スキップ] 画像を読み込めません: {image_path}")
             continue
 
-        for label_path in label_files:
-            stem = label_path.stem
-            image_path = find_image_path(category_image_dir, stem)
-            if image_path is None:
-                print(f"[スキップ] 対応する画像が見つかりません: {category_name}/{stem}")
+        img_h, img_w = img.shape[:2]
+
+        with open(label_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        for idx, line in enumerate(lines):
+            parsed = parse_yolo_line(line)
+            if parsed is None:
+                continue
+            class_id, x_center, y_center, width, height = parsed
+
+            if target_classes is not None and class_id not in target_classes:
                 continue
 
-            img = cv2.imread(str(image_path))
-            if img is None:
-                print(f"[スキップ] 画像を読み込めません: {image_path}")
+            x1, y1, x2, y2 = yolo_to_xyxy(
+                x_center, y_center, width, height, img_w, img_h, margin=margin
+            )
+
+            if x2 <= x1 or y2 <= y1:
+                print(f"[警告] 不正なボックスをスキップ: {stem} line {idx}")
                 continue
 
-            img_h, img_w = img.shape[:2]
+            crop = img[y1:y2, x1:x2]
 
-            with open(label_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
+            out_name = f"{stem}_{idx:03d}_cls{class_id}.jpg"
+            out_path = output_dir / out_name
+            cv2.imwrite(str(out_path), crop)
+            total_crops += 1
 
-            for idx, line in enumerate(lines):
-                parsed = parse_yolo_line(line)
-                if parsed is None:
-                    continue
-                class_id, x_center, y_center, width, height = parsed
-
-                if target_classes is not None and class_id not in target_classes:
-                    continue
-
-                x1, y1, x2, y2 = yolo_to_xyxy(
-                    x_center, y_center, width, height, img_w, img_h, margin=margin
-                )
-
-                if x2 <= x1 or y2 <= y1:
-                    print(f"[警告] 不正なボックスをスキップ: {category_name}/{stem} line {idx}")
-                    continue
-
-                crop = img[y1:y2, x1:x2]
-
-                out_name = f"{stem}_{idx:03d}_cls{class_id}.jpg"
-                out_path = category_output_dir / out_name
-                cv2.imwrite(str(out_path), crop)
-                total_crops += 1
-
-        print(f"[{category_name}] 処理完了")
-
-    print(f"\n完了: 合計 {total_crops} 件のクロップ画像を {output_dir} 以下に保存しました")
+    print(f"完了: 合計 {total_crops} 件のクロップ画像を {output_dir} に保存しました")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="YOLO形式アノテーションに基づく画像クロップ(カテゴリフォルダ対応)")
-    parser.add_argument("--images_dir", default="images_DINOv2", help="画像フォルダ(カテゴリ別サブフォルダを含む)。デフォルト: images_DINOv2")
-    parser.add_argument("--labels_dir", default="label_DINOv2", help="YOLO形式ラベルフォルダ(カテゴリ別サブフォルダを含む)。デフォルト: label_DINOv2")
+    parser = argparse.ArgumentParser(description="YOLO形式アノテーションに基づく画像クロップ(フラット構成)")
+    parser.add_argument("--images_dir", default="images", help="画像フォルダ。デフォルト: images")
+    parser.add_argument("--labels_dir", default="labels", help="YOLO形式ラベルフォルダ。デフォルト: labels")
     parser.add_argument("--output_dir", default="output", help="クロップ画像の出力先ディレクトリ。デフォルト: output")
     parser.add_argument("--margin", type=float, default=0.0,
                          help="バウンディングボックスに対する余白の割合(例: 0.1 = 上下左右10%拡張)")
