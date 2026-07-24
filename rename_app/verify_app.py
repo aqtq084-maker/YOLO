@@ -114,6 +114,46 @@ check("② execute: B/C が空になった",
 check("② execute: dataset 合計5枚",
       sum(core.count_dataset_images(DS).values()) == 5)
 
+# ---- ③ import: 届いたペアを dataset へ直接投入（②で dataset に5枚ある続き番号になる）----
+write(os.path.join(RCV_IMG, "recv_a.jpg"))
+write(os.path.join(RCV_IMG, "recv_b.jpg"))
+write(os.path.join(RCV_LBL, "recv_a.txt"), "0 0.5 0.5 0.1 0.1\n")
+write(os.path.join(RCV_LBL, "recv_b.txt"), "")
+at4 = fresh()
+at4.run()
+at4.radio(key="mode").set_value("import")
+at4.run()
+at4.text_input(key="veg").set_value("daikon")
+at4.text_input(key="dataset_dir").set_value(DS)
+at4.text_input(key="import_img").set_value(RCV_IMG)
+at4.text_input(key="import_lbl").set_value(RCV_LBL)
+at4.run()
+at4.button(key="preview_btn").click().run()
+check("③ preview: 例外なし", len(at4.exception) == 0)
+check("③ preview: 実行ボタンが出る", has_button(at4, "execute_btn"))
+check("③ preview: 空txt警告あり", len(at4.warning) >= 1)
+at4.button(key="execute_btn").click().run()
+check("③ execute: 成功メッセージ", len(at4.success) >= 1)
+check("③ execute: dataset 合計7枚",
+      sum(core.count_dataset_images(DS).values()) == 7)
+check("③ execute: 元は processed へ退避",
+      os.path.isdir(os.path.join(RCV_IMG, "processed"))
+      and os.path.isdir(os.path.join(RCV_LBL, "processed")))
+
+# ---- 問題系: import でペア欠け（txtのない画像）→ 実行ボタンを出さない＝無変更 ----
+write(os.path.join(RCV_IMG, "recv_c.jpg"))  # 対応txtなし
+at5 = fresh()
+at5.run()
+at5.radio(key="mode").set_value("import")
+at5.run()
+at5.text_input(key="dataset_dir").set_value(DS)
+at5.text_input(key="import_img").set_value(RCV_IMG)
+at5.text_input(key="import_lbl").set_value(RCV_LBL)
+at5.run()
+at5.button(key="preview_btn").click().run()
+check("問題系: エラー表示が出る", len(at5.error) >= 1)
+check("問題系: 実行ボタンを出さない", not has_button(at5, "execute_btn"))
+
 print()
 failed = [n for n, c in checks if not c]
 if failed:
