@@ -35,6 +35,20 @@ python rename_app\rename_new_images.py
 python rename_app\merge_to_dataset.py
 ```
 
+### Streamlit アプリ（CLIと同じ操作をGUIで）
+
+CLI と同じ3ワークフローを1画面で操作できる GUI。ロジックは同じ `core.py`。
+
+```
+venv\Scripts\activate
+streamlit run rename_app\app.py
+```
+
+上部のモード選択（① リネーム / ② 取り込み / ③ 直接投入）を切り替え、各フォルダパスと
+野菜名を入力して「プレビュー」→内容を確認して「実行する」。入力やモードを変更すると
+プレビューは無効になる（古い内容での実行を防ぐため）。問題が1件でもあればプレビューで
+中断し、ファイルには一切変更を加えない。
+
 ### パターン1: 自分で集めた画像（アノテーション前）
 
 1. 画像を `data_staging/1_new/` に入れる
