@@ -87,6 +87,33 @@ at2.run()
 check("① 入力変更前は実行ボタンあり / 変更後は消える",
       had and not has_button(at2, "execute_btn"))
 
+# ---- ② merge: staging(B/C) → dataset へ移動 ----
+# ①で RENAMED(=B) に daikon_train/val_*.jpg が5枚できている。対応する txt を C に作る
+stems = [os.path.splitext(f)[0] for f in sorted(os.listdir(RENAMED))]
+for i, stem in enumerate(stems):
+    write(os.path.join(LABELS, stem + ".txt"),
+          "" if i == 0 else "0 0.5 0.5 0.2 0.2\n")
+at3 = fresh()
+at3.run()
+at3.radio(key="mode").set_value("merge")
+at3.run()
+at3.text_input(key="veg").set_value("daikon")
+at3.text_input(key="dataset_dir").set_value(DS)
+at3.text_input(key="merge_img").set_value(RENAMED)
+at3.text_input(key="merge_lbl").set_value(LABELS)
+at3.run()
+at3.button(key="preview_btn").click().run()
+check("② preview: 例外なし", len(at3.exception) == 0)
+check("② preview: エラー表示なし", len(at3.error) == 0)
+check("② preview: 実行ボタンが出る", has_button(at3, "execute_btn"))
+check("② preview: 空txt警告が1件", len(at3.warning) >= 1)
+at3.button(key="execute_btn").click().run()
+check("② execute: 成功メッセージ", len(at3.success) >= 1)
+check("② execute: B/C が空になった",
+      os.listdir(RENAMED) == [] and os.listdir(LABELS) == [])
+check("② execute: dataset 合計5枚",
+      sum(core.count_dataset_images(DS).values()) == 5)
+
 print()
 failed = [n for n, c in checks if not c]
 if failed:
