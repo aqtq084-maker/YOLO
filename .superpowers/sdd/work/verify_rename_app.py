@@ -100,6 +100,29 @@ check("E2: 名前形式の問題を検出", any("名前の形式" in p for p in 
 os.remove(os.path.join(B, "wrongname.jpg"))
 os.remove(os.path.join(C, "wrongname.txt"))
 
+# --- build_rename_plan mode"2"（画像+txtペアを staging へ）の経路 ---
+RN2_IMG = os.path.join(BASE, "rename2", "images")
+RN2_LBL = os.path.join(BASE, "rename2", "labels")
+B2 = os.path.join(BASE, "2_renamed_b")
+C2 = os.path.join(BASE, "3_labels_b")
+for i in range(3):
+    write(os.path.join(RN2_IMG, f"pair{i}.jpg"))
+    write(os.path.join(RN2_LBL, f"pair{i}.txt"), "0 0.5 0.5 0.1 0.1\n")
+rn2 = core.build_rename_plan("2", RN2_IMG, RN2_LBL, DS, "daikon",
+                             out_images_dir=B2, out_labels_dir=C2)
+check("RN2: 問題なし", rn2["problems"] == [])
+check("RN2: 3件の計画", len(rn2["plan"]) == 3)
+check("RN2: 各planに元txtと新txtがある",
+      all(t is not None and nt is not None for _, t, _, nt in rn2["plan"]))
+check("RN2: train2/val1", rn2["n_train"] == 2 and rn2["n_val"] == 1)
+# ペア欠け（txt のない画像）→ 全件中断
+write(os.path.join(RN2_IMG, "orphan.jpg"))
+rn2e = core.build_rename_plan("2", RN2_IMG, RN2_LBL, DS, "daikon",
+                              out_images_dir=B2, out_labels_dir=C2)
+check("RN2: ペア欠けを検出して plan が空",
+      rn2e["problems"] != [] and rn2e["plan"] == [])
+os.remove(os.path.join(RN2_IMG, "orphan.jpg"))
+
 # --- default_dataset_dir の導出 ---
 check("DD: datasets/<野菜名> を返す",
       core.default_dataset_dir("komatsuna").endswith(os.path.join("datasets", "komatsuna")))

@@ -11,12 +11,16 @@ rename_app/
 ├─ rename_new_images.py  # ① リネーム（対話式CLI）
 ├─ merge_to_dataset.py   # ② パターン1の取り込み（対話式CLI）
 ├─ rename_daikon2.py     # 初回移行スクリプト（実行済み。記録として保管）
+├─ image.png             # フォルダ構成の設計スケッチ（手描きの構想図・参考用）
 └─ data_staging/         # 作業用フォルダ
    ├─ 1_new/             #   パターン1: 自分で集めた画像を入れる
-   ├─ received/          #   パターン2: 届いた画像+txtを入れる
+   ├─ received/          #   パターン2: 届いた画像+txtを入れる（images/ と labels/）
    ├─ 2_renamed/         #   パターン1のリネーム済み画像（アノテ待ち）
-   └─ 3_labels/          #   パターン1のアノテーションtxtを置く
+   ├─ 3_labels/          #   パターン1のアノテーションtxtを置く
+   └─ rename_log.txt     #   処理履歴の追記ログ（自動生成）
 ```
+
+（`image.png` はこの構成を手描きでスケッチした構想図。実際のフォルダ名・挙動は本 README とコードが正）
 
 データセット本体はリポジトリルートの `datasets/<野菜名>/train|val/images|labels` にある
 （例: `datasets/daikon/`。旧 `dataset_daikon2` を移動したもの）。
@@ -45,6 +49,7 @@ python rename_app\merge_to_dataset.py
 
 どちらも実行前にプレビューが出て、`y` を入力するまで何も変更しない。
 1件でも問題（ペア欠け・名前形式違い・同名衝突）があれば何もせず中断する。
+中身が空の txt は「検出対象なしの背景画像」として扱われるため、プレビューで件数を警告表示する（処理は止めない）。
 処理履歴は `data_staging/rename_log.txt` に追記される。
 
 取り込み後の学習はリポジトリルートの `data_daikon2.yaml`（`datasets/daikon` を指す）を `data=` に指定する。

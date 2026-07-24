@@ -14,3 +14,9 @@ Task 5 (v2): complete (datasets/daikon移行 375→375一致, yaml更新, stagin
 全タスク完了。残: 最終ブランチレビュー
 最終レビュー: マージ可(Critical/Important なし)。Minor triage: 重複=後回し可 / シード=not-a-bug / datasets/のgitignore=ユーザー判断待ち / README軽微不足=後回し可
 === 全工程完了 (2026-07-18) ===
+=== フォローアップ (2026-07-24): 残Minor片付け ===
+- gitignore判断: ユーザー選択「追跡を続ける(現状維持)」→ .gitignore・コードとも変更なし
+- 重複解消: core.py に _pair_by_stem / _assign_split_numbers を抽出し、build_rename_plan(mode2) と build_import_plan の重複ロジックを集約(外部挙動不変)
+- 検証: verify_rename_app.py に build_rename_plan mode"2" のチェックを追加(22→27件)。リファクタ前後とも ALL CHECKS PASSED (27)
+- README補強: image.png(設計スケッチ) と rename_log.txt を構成に明記、空txt=背景画像扱いの注記を追加
+- シード固定なし: not-a-bug のため対応せず（判断済み）

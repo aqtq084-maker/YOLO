@@ -19,3 +19,5 @@ roi_check_output/
 
 # 作業記録 (GitHubに上げない)
 dayliy/
+movie_cut.py
+movi_cut_result/

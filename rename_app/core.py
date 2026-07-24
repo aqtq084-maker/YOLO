@@ -87,6 +87,52 @@ def _append_log(log_file, lines):
         f.write("\n".join(lines) + "\n")
 
 
+def _pair_by_stem(images, txts, result):
+    """画像と txt を stem（拡張子を除いた名前）でペアリングして検証する。
+
+    完全にペアになっていれば [(元画像名, 元txt名), ...] を stem 名前順で返す。
+    片方でも欠けていれば result["problems"] に追記して None を返す。
+    """
+    img_by_stem = {os.path.splitext(f)[0]: f for f in images}
+    txt_by_stem = {os.path.splitext(f)[0]: f for f in txts}
+    for stem, img in img_by_stem.items():
+        if stem not in txt_by_stem:
+            result["problems"].append(
+                f"txt がありません: {img} に対応する {stem}.txt が見つかりません")
+    for stem, txt in txt_by_stem.items():
+        if stem not in img_by_stem:
+            result["problems"].append(
+                f"画像がありません: {txt} に対応する画像が見つかりません")
+    if result["problems"]:
+        return None
+    return [(img, txt_by_stem[stem]) for stem, img in sorted(img_by_stem.items())]
+
+
+def _assign_split_numbers(items, veg_name, scan_dirs):
+    """items を train/val へ 8:2 で振り分け、既存の続き番号で採番する計画を作る。
+
+    items: [(元画像名, 元txt名 or None), ...]（元の順序を保持）
+    scan_dirs: 既存の最大番号を調べるフォルダ群（データセット + staging）
+    戻り値: (assignments, max_num, n_train)
+      assignments = [(元画像名, 元txt名, split, 新stem), ...]（items と同じ順序）
+      新stem は "{veg_name}_{split}_{番号3桁}"（拡張子なし）
+    """
+    max_num = scan_max_numbers(veg_name, scan_dirs)
+    n_train = round(len(items) * TRAIN_RATIO)
+    shuffled = items[:]
+    random.shuffle(shuffled)
+    train_set = {img for img, _ in shuffled[:n_train]}
+
+    counters = {"train": max_num["train"], "val": max_num["val"]}
+    assignments = []
+    for img, txt in items:
+        split = "train" if img in train_set else "val"
+        counters[split] += 1
+        new_stem = f"{veg_name}_{split}_{counters[split]:03d}"
+        assignments.append((img, txt, split, new_stem))
+    return assignments, max_num, n_train
+
+
 # ==========================================
 # 新規データのリネーム（続き番号 + train/val 振り分け）
 # ==========================================
@@ -117,26 +163,14 @@ def build_rename_plan(mode, img_in_dir, lbl_in_dir, dataset_dir, veg_name,
     images, ignored = list_files(img_in_dir, IMAGE_EXTS)
     result["ignored"].extend(ignored)
 
-    items = []  # (元画像名, 元txt名 or None)
     if mode == "1":
         items = [(img, None) for img in images]
     else:
         txts, ignored_l = list_files(lbl_in_dir, [".txt"])
         result["ignored"].extend(ignored_l)
-        # 画像と txt が完全にペアになっているか検証
-        img_by_stem = {os.path.splitext(f)[0]: f for f in images}
-        txt_by_stem = {os.path.splitext(f)[0]: f for f in txts}
-        for stem, img in img_by_stem.items():
-            if stem not in txt_by_stem:
-                result["problems"].append(
-                    f"txt がありません: {img} に対応する {stem}.txt が見つかりません")
-        for stem, txt in txt_by_stem.items():
-            if stem not in img_by_stem:
-                result["problems"].append(
-                    f"画像がありません: {txt} に対応する画像が見つかりません")
-        if result["problems"]:
+        items = _pair_by_stem(images, txts, result)
+        if items is None:
             return result
-        items = [(img, txt_by_stem[stem]) for stem, img in sorted(img_by_stem.items())]
 
     if not items:
         result["problems"].append("リネームする新しいファイルがありません。")
@@ -151,21 +185,11 @@ def build_rename_plan(mode, img_in_dir, lbl_in_dir, dataset_dir, veg_name,
         out_images_dir,
         out_labels_dir,
     ]
-    max_num = scan_max_numbers(veg_name, scan_dirs)
+    assignments, max_num, n_train = _assign_split_numbers(items, veg_name, scan_dirs)
     result["max_num"] = max_num
 
-    # 8:2 でランダムに train/val へ振り分け（番号そのものは名前順に振る）
-    n_train = round(len(items) * TRAIN_RATIO)
-    shuffled = items[:]
-    random.shuffle(shuffled)
-    train_set = {img for img, _ in shuffled[:n_train]}
-
-    counters = {"train": max_num["train"], "val": max_num["val"]}
-    for img, txt in items:
-        split = "train" if img in train_set else "val"
-        counters[split] += 1
+    for img, txt, split, new_stem in assignments:
         ext = os.path.splitext(img)[1].lower()
-        new_stem = f"{veg_name}_{split}_{counters[split]:03d}"
         result["plan"].append(
             (img, txt, new_stem + ext, new_stem + ".txt" if txt else None))
 
@@ -376,21 +400,9 @@ def build_import_plan(images_dir, labels_dir, dataset_dir, veg_name,
     txts, ignored_l = list_files(labels_dir, [".txt"])
     result["ignored"].extend(ignored_l)
 
-    # 画像と txt が完全にペアになっているか検証
-    img_by_stem = {os.path.splitext(f)[0]: f for f in images}
-    txt_by_stem = {os.path.splitext(f)[0]: f for f in txts}
-    for stem, img in img_by_stem.items():
-        if stem not in txt_by_stem:
-            result["problems"].append(
-                f"txt がありません: {img} に対応する {stem}.txt が見つかりません")
-    for stem, txt in txt_by_stem.items():
-        if stem not in img_by_stem:
-            result["problems"].append(
-                f"画像がありません: {txt} に対応する画像が見つかりません")
-    if result["problems"]:
+    items = _pair_by_stem(images, txts, result)
+    if items is None:
         return result
-
-    items = [(img, txt_by_stem[stem]) for stem, img in sorted(img_by_stem.items())]
     if not items:
         result["problems"].append("取り込むファイルがありません。")
         return result
@@ -404,21 +416,11 @@ def build_import_plan(images_dir, labels_dir, dataset_dir, veg_name,
         staging_images_dir,
         staging_labels_dir,
     ]
-    max_num = scan_max_numbers(veg_name, scan_dirs)
+    assignments, max_num, n_train = _assign_split_numbers(items, veg_name, scan_dirs)
     result["max_num"] = max_num
 
-    # 8:2 でランダムに train/val へ振り分け（番号そのものは名前順に振る）
-    n_train = round(len(items) * TRAIN_RATIO)
-    shuffled = items[:]
-    random.shuffle(shuffled)
-    train_set = {img for img, _ in shuffled[:n_train]}
-
-    counters = {"train": max_num["train"], "val": max_num["val"]}
-    for img, txt in items:
-        split = "train" if img in train_set else "val"
-        counters[split] += 1
+    for img, txt, split, new_stem in assignments:
         ext = os.path.splitext(img)[1].lower()
-        new_stem = f"{veg_name}_{split}_{counters[split]:03d}"
         result["plan"].append((img, txt, new_stem + ext, new_stem + ".txt", split))
 
     # dataset 側との衝突チェック（念のため）
