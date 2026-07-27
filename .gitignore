@@ -1,5 +1,4 @@
 # Python
-venv/
 __pycache__/
 dataset/
 *.pyc
@@ -10,3 +9,12 @@ dataset/
 # Output folders
 check_result/
 roi_check_output/
+
+# YOLO outputs
+runs/
+
+# environments
+venv_gpu/
+venv/
+
+photo_homu/
