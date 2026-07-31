@@ -1,0 +1,12 @@
+2026-07-24 23:38:25 | rename | photo0.jpg -> daikon_train_001.jpg
+2026-07-24 23:38:25 | rename | photo1.jpg -> daikon_train_002.jpg
+2026-07-24 23:38:25 | rename | photo2.jpg -> daikon_train_003.jpg
+2026-07-24 23:38:25 | rename | photo3.jpg -> daikon_train_004.jpg
+2026-07-24 23:38:25 | rename | photo4.jpg -> daikon_val_001.jpg
+2026-07-24 23:38:25 | merge | daikon_train_001.jpg + daikon_train_001.txt -> train/
+2026-07-24 23:38:25 | merge | daikon_train_002.jpg + daikon_train_002.txt -> train/
+2026-07-24 23:38:25 | merge | daikon_train_003.jpg + daikon_train_003.txt -> train/
+2026-07-24 23:38:25 | merge | daikon_train_004.jpg + daikon_train_004.txt -> train/
+2026-07-24 23:38:25 | merge | daikon_val_001.jpg + daikon_val_001.txt -> val/
+2026-07-24 23:38:25 | import | recv_a.jpg + recv_a.txt -> train/daikon_train_005.jpg + daikon_train_005.txt
+2026-07-24 23:38:25 | import | recv_b.jpg + recv_b.txt -> train/daikon_train_006.jpg + daikon_train_006.txt

@@ -20,3 +20,19 @@ Task 5 (v2): complete (datasets/daikon移行 375→375一致, yaml更新, stagin
 - 検証: verify_rename_app.py に build_rename_plan mode"2" のチェックを追加(22→27件)。リファクタ前後とも ALL CHECKS PASSED (27)
 - README補強: image.png(設計スケッチ) と rename_log.txt を構成に明記、空txt=背景画像扱いの注記を追加
 - シード固定なし: not-a-bug のため対応せず（判断済み）
+
+=== Streamlit UI 実装 (2026-07-24, subagent-driven) ===
+plan: docs/superpowers/plans/2026-07-24-rename-app-streamlit-ui.md / base bc3f86d
+Task 1 (Streamlit): complete (commit 23d6ec3, review: スペック✅/品質Approved)
+  - 実装者が計画のverify_app.py block2バグ(drainされたNEW再利用)を修正(app.pyは計画通り無変更)
+  - Minor記録: 入力変更チェックが2条件を1アサートに合成(計画由来) / at2ブロックがradio/veg既定値に暗黙依存(計画由来)
+Task 2 (Streamlit): complete (commit 71e8357, review: スペック✅/品質 Approved, 指摘なし)
+Task 3 (Streamlit): complete (commit b118693, review: スペック✅/品質 Approved)
+  - Minor記録: ③happy-pathに「errorなし」チェックがない(①②と非対称・計画由来) / エラー系の無変更証明は実行ボタン不在のみ(ファイル未タッチの直接確認はなし)
+Task 3 (Streamlit): complete (commit b118693, review: spec OK / quality Approved)
+  - Minor: import happy-path lacks no-error check (plan-inherited); error-case proves no-change only via missing execute button
+Task 4 (Streamlit): complete (commit 4e66147, README only +14 lines, controller-reviewed OK)
+Final review (Streamlit, opus): MERGEABLE. Critical/Important なし。
+  Minor triage: ①invalidation合成assert=not-a-bug / ③no-errorチェック欠=defer / error系はボタン不在で証明=defer
+  追加観察(非ブロッキング): execute時のプラン再検証なし(既存core由来) / docstring内の=表示のみ無害 / veg変更でdataset_dir既定が非追後(設計通り)
+All Streamlit tasks complete (2026-07-24).
