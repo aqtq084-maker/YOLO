@@ -5,8 +5,6 @@ core.py の build/execute をそのまま呼ぶ薄いラッパー。
 """
 import os
 import sys
-import tkinter as tk
-from tkinter import filedialog
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import core  # noqa: E402
@@ -23,30 +21,45 @@ MODE_LABELS = {
 def _pick_folder(initial_dir):
     """OSネイティブのフォルダ選択ダイアログを開き、選ばれた絶対パスを返す。
     キャンセル時は空文字列。ダイアログを開けない環境では例外を送出する。"""
+    import tkinter as tk
+    from tkinter import filedialog
+
     root = tk.Tk()
-    root.withdraw()
-    root.attributes("-topmost", True)
-    path = filedialog.askdirectory(initialdir=initial_dir or None)
-    root.destroy()
-    return path
+    try:
+        root.withdraw()
+        root.attributes("-topmost", True)
+        return filedialog.askdirectory(initialdir=initial_dir or None)
+    finally:
+        root.destroy()
 
 
 def folder_input(label, default, key):
-    """テキスト欄＋「フォルダを開く」ボタンを横並びで描画し、現在値を返す。"""
-    col_text, col_btn = st.columns([5, 1])
-    with col_text:
-        value = st.text_input(label, st.session_state.get(key, default), key=key)
+    """テキスト欄＋「フォルダを開く」ボタンを横並びで描画し、現在値を返す。
+
+    ボタンの click 処理（session_state 書き込み・rerun）は、同じ key を持つ
+    text_input がこのスクリプト実行内でまだ生成されていない時点で行う必要が
+    ある（Streamlitは「同一run内で既に生成済みのwidgetのkeyへの書き込み」を
+    例外にするため）。そのため col_btn の処理を先に、col_text の
+    st.text_input を後に実行する（表示上の左右の並びは st.columns の列の
+    順序で決まり、コードの実行順序とは無関係）。
+    """
+    if key not in st.session_state:
+        st.session_state[key] = default
+    col_text, col_btn = st.columns([5, 1], vertical_alignment="bottom")
     with col_btn:
-        if st.button("📁", key=f"{key}_browse", help="フォルダを開く"):
-            try:
-                picked = _pick_folder(st.session_state.get(key, default))
-            except Exception as e:  # noqa: BLE001 (tkinter未対応環境などのフォールバック)
-                st.error(f"フォルダ選択ダイアログを開けませんでした: {e}"
-                         "（テキスト欄に直接入力してください）")
-            else:
-                if picked:
-                    st.session_state[key] = picked
-                    st.rerun()
+        clicked = st.button("📁", key=f"{key}_browse", help="フォルダを開く")
+    if clicked:
+        try:
+            picked = _pick_folder(st.session_state.get(key, default))
+        except Exception as e:  # noqa: BLE001 (tkinter未対応環境などのフォールバック)
+            st.error(f"フォルダ選択ダイアログを開けませんでした: {e}"
+                     "（テキスト欄に直接入力してください）")
+        else:
+            if picked:
+                st.session_state[key] = picked
+                st.rerun()
+    with col_text:
+        value = st.text_input(label, key=key)
     return value
 
 

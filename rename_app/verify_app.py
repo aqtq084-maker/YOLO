@@ -2,6 +2,7 @@
 import os
 import shutil
 import sys
+from unittest import mock
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, APP_DIR)
@@ -179,6 +180,43 @@ at7.session_state["import_img"] = picked
 at7.run()
 check("📁 選択後の値がテキスト欄に反映される（session_state経由の模擬）",
       at7.text_input(key="import_img").value == picked)
+
+# ---- 📁 実際にクリックしても例外が出ず、選択パスが反映される（tkinterをモック）----
+class _FakeTk:
+    def withdraw(self):
+        pass
+
+    def attributes(self, *args, **kwargs):
+        pass
+
+    def destroy(self):
+        pass
+
+
+picked_path = os.path.join(BASE, "picked_by_click")
+at8 = fresh()
+at8.run()
+at8.radio(key="mode").set_value("import")
+at8.run()
+with mock.patch("tkinter.Tk", return_value=_FakeTk()), \
+     mock.patch("tkinter.filedialog.askdirectory", return_value=picked_path):
+    at8.button(key="import_img_browse").click().run()
+check("📁 実クリック: 例外なし", len(at8.exception) == 0)
+check("📁 実クリック: 選択パスが反映される",
+      at8.text_input(key="import_img").value == picked_path)
+
+# ---- 📁 ダイアログをキャンセル（空文字）した場合は値が変わらない ----
+at9 = fresh()
+at9.run()
+at9.radio(key="mode").set_value("import")
+at9.run()
+before_cancel = at9.text_input(key="import_img").value
+with mock.patch("tkinter.Tk", return_value=_FakeTk()), \
+     mock.patch("tkinter.filedialog.askdirectory", return_value=""):
+    at9.button(key="import_img_browse").click().run()
+check("📁 キャンセル: 例外なし", len(at9.exception) == 0)
+check("📁 キャンセル: 値が変わらない",
+      at9.text_input(key="import_img").value == before_cancel)
 
 print()
 failed = [n for n, c in checks if not c]
