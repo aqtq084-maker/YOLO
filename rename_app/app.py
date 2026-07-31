@@ -5,6 +5,8 @@ core.py の build/execute をそのまま呼ぶ薄いラッパー。
 """
 import os
 import sys
+import tkinter as tk
+from tkinter import filedialog
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import core  # noqa: E402
@@ -18,24 +20,49 @@ MODE_LABELS = {
 }
 
 
+def _pick_folder(initial_dir):
+    """OSネイティブのフォルダ選択ダイアログを開き、選ばれた絶対パスを返す。
+    キャンセル時は空文字列。ダイアログを開けない環境では例外を送出する。"""
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes("-topmost", True)
+    path = filedialog.askdirectory(initialdir=initial_dir or None)
+    root.destroy()
+    return path
+
+
+def folder_input(label, default, key):
+    """テキスト欄＋「フォルダを開く」ボタンを横並びで描画し、現在値を返す。"""
+    col_text, col_btn = st.columns([5, 1])
+    with col_text:
+        value = st.text_input(label, st.session_state.get(key, default), key=key)
+    with col_btn:
+        if st.button("📁", key=f"{key}_browse", help="フォルダを開く"):
+            try:
+                picked = _pick_folder(st.session_state.get(key, default))
+            except Exception as e:  # noqa: BLE001 (tkinter未対応環境などのフォールバック)
+                st.error(f"フォルダ選択ダイアログを開けませんでした: {e}"
+                         "（テキスト欄に直接入力してください）")
+            else:
+                if picked:
+                    st.session_state[key] = picked
+                    st.rerun()
+    return value
+
+
 def render_inputs(mode, veg_name):
     """モードごとの入力欄を描画し、パス dict を返す。"""
-    dataset_dir = st.text_input(
-        "データセットのフォルダ", core.default_dataset_dir(veg_name),
-        key="dataset_dir")
+    dataset_dir = folder_input(
+        "データセットのフォルダ", core.default_dataset_dir(veg_name), "dataset_dir")
     if mode == "rename":
-        img_in = st.text_input("新しい画像のフォルダ", core.NEW_DIR, key="rename_img")
+        img_in = folder_input("新しい画像のフォルダ", core.NEW_DIR, "rename_img")
         return {"img_in": img_in, "lbl_in": None, "dataset_dir": dataset_dir}
     if mode == "merge":
-        img_in = st.text_input("リネーム済み画像のフォルダ (B)", core.RENAMED_DIR,
-                               key="merge_img")
-        lbl_in = st.text_input("アノテーション txt のフォルダ (C)", core.LABELS_DIR,
-                               key="merge_lbl")
+        img_in = folder_input("リネーム済み画像のフォルダ (B)", core.RENAMED_DIR, "merge_img")
+        lbl_in = folder_input("アノテーション txt のフォルダ (C)", core.LABELS_DIR, "merge_lbl")
         return {"img_in": img_in, "lbl_in": lbl_in, "dataset_dir": dataset_dir}
-    img_in = st.text_input("届いた画像のフォルダ", core.RECEIVED_IMAGES_DIR,
-                           key="import_img")
-    lbl_in = st.text_input("届いた txt のフォルダ", core.RECEIVED_LABELS_DIR,
-                           key="import_lbl")
+    img_in = folder_input("届いた画像のフォルダ", core.RECEIVED_IMAGES_DIR, "import_img")
+    lbl_in = folder_input("届いた txt のフォルダ", core.RECEIVED_LABELS_DIR, "import_lbl")
     return {"img_in": img_in, "lbl_in": lbl_in, "dataset_dir": dataset_dir}
 
 

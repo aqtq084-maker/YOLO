@@ -154,6 +154,32 @@ at5.button(key="preview_btn").click().run()
 check("問題系: エラー表示が出る", len(at5.error) >= 1)
 check("問題系: 実行ボタンを出さない", not has_button(at5, "execute_btn"))
 
+# ---- 📁 ボタン: 各モードの全フォルダ欄にボタンがある ----
+FOLDER_KEYS_BY_MODE = {
+    "rename": ["dataset_dir", "rename_img"],
+    "merge": ["dataset_dir", "merge_img", "merge_lbl"],
+    "import": ["dataset_dir", "import_img", "import_lbl"],
+}
+for mode, keys in FOLDER_KEYS_BY_MODE.items():
+    at6 = fresh()
+    at6.run()
+    at6.radio(key="mode").set_value(mode)
+    at6.run()
+    for key in keys:
+        check(f"{mode}: {key} に📁ボタンがある",
+              has_button(at6, f"{key}_browse"))
+
+# ---- 📁 選択後の値が反映される（tkinterダイアログを介さず session_state 経由で模擬）----
+at7 = fresh()
+at7.run()
+at7.radio(key="mode").set_value("import")
+at7.run()
+picked = os.path.join(BASE, "picked_by_dialog")
+at7.session_state["import_img"] = picked
+at7.run()
+check("📁 選択後の値がテキスト欄に反映される（session_state経由の模擬）",
+      at7.text_input(key="import_img").value == picked)
+
 print()
 failed = [n for n, c in checks if not c]
 if failed:
