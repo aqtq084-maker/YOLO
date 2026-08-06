@@ -7,6 +7,8 @@ DINOv2で抽出した特徴量(.npy)の中身を確認・可視化するスク�
 
   # 2つのファイルの類似度を比較
   python view_npy_features.py --compare features/1_cls.npy features/2_cls.npy
+  python view_npy_features.py --compare features_photo_homu/かぼちゃ/001_cls.npy features_photo_homu/すいか/s
+uika_001_cls.npy
 
   # ヒートマップとして画像で保存
   python view_npy_features.py --file features/1_cls.npy --plot heatmap.png
