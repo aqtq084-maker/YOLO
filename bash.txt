@@ -1,0 +1,5 @@
+python evaluate_dinov2_features.py --features_dir features_photo_homu
+
+python classify_vegetables.py train_test --features_dir features_photo_homu --model_dir model
+
+python classify_vegetables.py predict --model_dir model --image new_photo.jpg
