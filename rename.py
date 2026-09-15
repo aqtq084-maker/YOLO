@@ -5,16 +5,16 @@ import re
 # 1. ここを変更してください
 # ==========================================
 # 画像が入っているフォルダのパス
-folder_path = r"/home/momoshita/協生農法/YOLO/photo_homu/かぼちゃ"
+folder_path = r"/home/momoshita/協生農法/YOLO/features_photo_homu/さといも"
 
 # つけたい名前（接頭辞）
-prefix = "" # 例: "train_corn" -> train_corn_001.jpg, train_corn_002.jpg, ...
+prefix = "a" # 例: "train_corn" -> train_corn_001.jpg, train_corn_002.jpg, ...
 
 # ★何番からスタートするかを指定します
 start_num = 1
 
 # 処理対象とする拡張子のリスト（これらを見つけたら処理します）
-valid_extensions = ['.txt', '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff']
+valid_extensions = ['.npy','.txt', '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff']
 
 # --- 数字を正しく扱うためのソート用関数 ---
 def natural_keys(text):
@@ -48,9 +48,9 @@ count = start_num
 for temp_path in temp_mapping:
     # prefixがあるときだけアンダーバーを付ける
     if prefix:
-        new_name = f"{prefix}_{count:03d}.jpg"
+        new_name = f"{prefix}_{count:03d}_cls.jpg"
     else:
-        new_name = f"{count:03d}.jpg"
+        new_name = f"{count:03d}_cls.jpg"
 
     new_path = os.path.join(folder_path, new_name)
 
