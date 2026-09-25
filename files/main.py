@@ -22,9 +22,9 @@ from pathlib import Path
 
 import numpy as np
 
-from data_loader import FeatureDataset
-from evaluator import EvalConfig, KNNEvaluator
-from feature_processor import build_feature_vector, list_strategies
+from files.data_loader import FeatureDataset
+from files.evaluator import EvalConfig, KNNEvaluator
+from files.feature_processor import build_feature_vector, list_strategies
 
 
 def parse_args() -> argparse.Namespace:

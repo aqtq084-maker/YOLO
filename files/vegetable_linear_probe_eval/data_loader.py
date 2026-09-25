@@ -41,7 +41,9 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 # ファイル名パターン: <連番>_<接尾辞>.npy  例: 001_cls.npy, 012_patch.npy
-FILENAME_PATTERN = re.compile(r"^(?P<index>\d+)_(?P<suffix>[a-zA-Z0-9]+)\.npy$")
+FILENAME_PATTERN = re.compile(
+    r"^(?P<prefix>.*_)?(?P<index>\d+)_(?P<suffix>[a-zA-Z0-9]+)\.npy$"
+)
 
 
 @dataclass
