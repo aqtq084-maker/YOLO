@@ -1,11 +1,11 @@
 """
 データローダー
 
-features_photo_homu 以下のディレクトリ構造から
+features/photo_homu 以下のディレクトリ構造から
 DINOv2特徴量(.npyファイル)を読み込み、ラベル付きサンプルとして返す。
 
 想定ディレクトリ構造:
-    features_photo_homu/
+    features/photo_homu/
         かぼちゃ/
             001_cls.npy
             001_patch.npy
@@ -59,7 +59,7 @@ class Sample:
 
 
 class FeatureDataset:
-    """features_photo_homu 配下を走査してサンプル一覧を構築するクラス"""
+    """features/photo_homu 配下を走査してサンプル一覧を構築するクラス"""
 
     def __init__(self, root_dir: Union[str, Path]):
         self.root_dir = Path(root_dir)

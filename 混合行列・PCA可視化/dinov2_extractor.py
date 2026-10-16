@@ -2,7 +2,7 @@
 [拡張用モジュール] DINOv2特徴量抽出
 
 現在の評価スクリプト(main.py)は事前に抽出済みの .npy ファイル
-(features_photo_homu/<野菜名>/<連番>_cls.npy, <連番>_patch.npy) を前提としている。
+(features/photo_homu/<野菜名>/<連番>_cls.npy, <連番>_patch.npy) を前提としている。
 
 このモジュールは、将来「新しい写真を撮ったその場でDINOv2特徴量を抽出し、
 既存のデータセットに追加したい」というニーズのために用意した拡張ポイント。
@@ -18,11 +18,11 @@
     extractor = DINOv2Extractor(model_name="facebook/dinov2-base")
     extractor.extract_and_save(
         image_path="new_photos/kabocha_010.jpg",
-        out_dir="features_photo_homu/かぼちゃ",
+        out_dir="features/photo_homu/かぼちゃ",
         index="010",
     )
-    # -> features_photo_homu/かぼちゃ/010_cls.npy
-    # -> features_photo_homu/かぼちゃ/010_patch.npy
+    # -> features/photo_homu/かぼちゃ/010_cls.npy
+    # -> features/photo_homu/かぼちゃ/010_patch.npy
     # が生成され、そのままmain.pyの評価対象に追加できる。
 """
 
@@ -64,7 +64,7 @@ class DINOv2Extractor:
     def extract_and_save(
         self, image_path: Union[str, Path], out_dir: Union[str, Path], index: str
     ) -> None:
-        """features_photo_homu の命名規則に沿って .npy を2つ保存する"""
+        """features/photo_homu の命名規則に沿って .npy を2つ保存する"""
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         cls_token, patch_tokens = self.extract(image_path)

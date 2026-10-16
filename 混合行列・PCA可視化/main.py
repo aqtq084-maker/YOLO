@@ -3,7 +3,7 @@
 
 使い方:
     # 既定: 混同行列+PCA可視化 (分類器=k-NN, clsトークン, Leave-One-Out)
-    python main.py --data-dir features_photo_homu --strategy cls
+    python main.py --data-dir features/photo_homu --strategy cls
 
     # 分類器を線形プルーブに切り替える場合
     python main.py --classifier linear_probe --cv kfold --n-splits 5
@@ -18,7 +18,7 @@
     python main.py --method knn --k 5 --cv loo
 
 主な処理の流れ:
-    1. FeatureDataset で features_photo_homu 以下を読み込み
+    1. FeatureDataset で features/photo_homu 以下を読み込み
     2. feature_processor で指定した戦略に基づき特徴ベクトルを構築
     3. evaluators で指定した手法(既定: 混同行列+PCA可視化)により評価
        (各evaluatorが自分でout_dir配下にレポート・画像を保存する)
@@ -47,7 +47,7 @@ def parse_args() -> argparse.Namespace:
         description="野菜判定AIの精度評価 (既定: 混同行列+PCA可視化)"
     )
     parser.add_argument(
-        "--data-dir", type=str, default="features_photo_homu",
+        "--data-dir", type=str, default="features/photo_homu",
         help="特徴量が保存されているルートディレクトリ",
     )
     parser.add_argument(
