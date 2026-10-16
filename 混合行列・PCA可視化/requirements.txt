@@ -1,0 +1,10 @@
+# 評価スクリプト本体(main.py)に必要
+numpy
+scikit-learn
+matplotlib
+
+# dinov2_extractor.py を使って新しい画像から特徴量を抽出したい場合のみ追加で必要
+# torch
+# torchvision
+# transformers
+# pillow

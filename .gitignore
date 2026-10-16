@@ -1,7 +1,4 @@
 # Python
-venv/
-venv_gpu
-
 __pycache__/
 dataset/
 *.pyc
@@ -13,5 +10,11 @@ dataset/
 check_result/
 roi_check_output/
 
-runs
-photo_homu
+# YOLO outputs
+runs/
+
+# environments
+venv_gpu/
+venv/
+
+#photo_homu/
