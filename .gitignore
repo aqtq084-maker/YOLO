@@ -10,3 +10,6 @@ dataset/
 # Output folders
 check_result/
 roi_check_output/
+datasets/
+dayliy/
+movi_cut_result/
